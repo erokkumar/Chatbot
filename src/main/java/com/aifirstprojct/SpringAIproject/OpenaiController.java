@@ -1,32 +1,79 @@
 package com.aifirstprojct.SpringAIproject;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 public class OpenaiController {
+    private ChatClient chatClient;
 
-    private final ChatClient chatClient;
 
-    public OpenaiController(OpenAiChatModel chatModel) {
-        this.chatClient = ChatClient.create(chatModel);
+    //    public OpenAIController(OpenAiChatModel chatModel) {
+//        this.chatClient = ChatClient.create(chatModel);
+//    }
+    ChatMemory chatMemory = MessageWindowChatMemory.builder().build();
+
+    public OpenaiController(ChatClient.Builder builder) {
+        this.chatClient = builder
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory)
+                        .build())
+                .build();
+
     }
-
+//    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/api/{message}")
     public ResponseEntity<String> getAnswer(@PathVariable String message) {
-        String response = chatClient
-                .prompt(message)
+        ChatResponse chatResponse = chatClient.prompt(message)
+                .call()
+                .chatResponse();
+
+        System.out.println(chatResponse.getMetadata().getModel());
+
+
+        String response = chatResponse
+                .getResult()
+                .getOutput()
+                .getText();
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/recommend")
+    public String recommend(@RequestParam String type, @RequestParam String year,@RequestParam String lang){
+        String temp = """ 
+                I want to watch a {type} movie tonight with good rating, 
+                looking  for movies around this year {year}. 
+                The  language im looking for is {lang}.
+                Suggest one specific movie and tell me the cast and length of the movie.
+                
+                
+                response format should be:
+                1. Movie Name
+                2. basic plot
+                3. cast
+                4. length
+                5. IMDB rating
+                """;
+        PromptTemplate promptTemplate = new PromptTemplate(temp);
+
+        Prompt prompt = promptTemplate.create(Map.of(
+                "type", type,
+                "year", year,
+                "lang", lang
+        ));
+
+        String response = chatClient.prompt(prompt)
                 .call()
                 .content();
+        return response;
 
-        // Return a proper ResponseEntity with combined text
-        String finalResponse = "This is a dummy response to the question: " + message +
-                "\nAI response is: " + response;
-
-        return ResponseEntity.ok(finalResponse);
     }
 }
