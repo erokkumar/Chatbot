@@ -13,6 +13,11 @@ This is Only Backends
 - 🌐 REST API for chatbot interaction
 - 📦 Supports environment-based configuration
 
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE) © 2025 Rohit Kumar.
+
 ---
 
 ## 📁 Project Structure
@@ -31,3 +36,4 @@ spring-ai-chatbot/
 └── README.md
 
 ---
+
