@@ -1,6 +1,6 @@
 # 🤖 Spring AI Chatbot
 
-A powerful and customizable chatbot built using **Spring Boot + Spring AI**, capable of integrating with OpenAI, Azure, HuggingFace, and other providers. Ideal for customer support, knowledge bases, and interactive applications.
+A powerful and customizable chatbot built using **Spring Boot + Spring AI + OpenAI **, capable of integrating with OpenAI, Azure, HuggingFace, and other providers. Ideal for customer support, knowledge bases, and interactive applications.
 
 ## 🚀 Features
 
